@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  ais-catcher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ais-catcher
+    restart: unless-stopped
+    # Use host network for easiest connectivity to both internet and local devices
+    # This ensures full network connectivity without specific port mapping
+    network_mode: "host"
+    # Alternative to host network (comment out network_mode above and uncomment below)
+    # networks:
+    #   - host_network
+    ports:
+      # Only needed if NOT using network_mode: "host"
+      # Web interface
+      - "8080:8080"
+      # Optional - if you want to also receive UDP data
+      # - "10110:10110/udp"
+    # Command line arguments for AIS-catcher
+    command: >
+      -t 192.168.4.238 23  # Connect to telnet source at 192.168.4.238:23
+      -N 8080              # Enable web interface on port 8080
+      -v 5                 # Enable verbose output, update every 5 seconds
+    # DNS settings to ensure internet connectivity
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    # Optional environment variables (if needed)
+    environment:
+      - TZ=UTC
+    
+    # Optional volumes for persistence (if needed)
+    # volumes:
+    #   - ./data:/data
+
+# Only needed if NOT using network_mode: "host"
+# networks:
+#   host_network:
+#     driver: bridge
